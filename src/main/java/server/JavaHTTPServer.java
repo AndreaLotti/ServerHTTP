@@ -5,31 +5,21 @@ package server;
  *
  * @author Andrea Lotti
  */
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Date;
-import java.util.StringTokenizer;
 
-// The tutorial can be found just here on the SSaurel's Blog : 
-// https://www.ssaurel.com/blog/create-a-simple-http-web-server-in-java
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
 // Each Client Connection will be managed in a dedicated Thread
 public class JavaHTTPServer implements Runnable{ 
-	
 	static final File WEB_ROOT = new File("./Files");
 	static final String DEFAULT_FILE = "index.html";
 	static final String FILE_NOT_FOUND = "404.html";
         static final String FILE_REDIRECT = "301.html";
+        static final String FILE_JSON = "puntivendita.json";
+        static final String FILE_XML = "puntivendita.xml";
 	static final String METHOD_NOT_SUPPORTED = "not_supported.html";
 	// port to listen connection
 	static final int PORT = 8080;
@@ -40,6 +30,9 @@ public class JavaHTTPServer implements Runnable{
 	// Client Connection via Socket Class
 	private Socket connect;
 	
+        ObjectMapper map;
+        XmlMapper xmlMap;
+        
 	public JavaHTTPServer(Socket c) {
 		connect = c;
 	}
@@ -88,6 +81,7 @@ public class JavaHTTPServer implements Runnable{
 			String method = parse.nextToken().toUpperCase(); // we get the HTTP method of the client
 			// we get file requested
 			fileRequested = parse.nextToken().toLowerCase();
+                        if(fileRequested.equals("/puntivendita.xml/")) fileRequested = "/puntivendita.xml";
 			
 			// we support only GET and HEAD methods, we check
 			if (!method.equals("GET")  &&  !method.equals("HEAD")) {
@@ -115,11 +109,16 @@ public class JavaHTTPServer implements Runnable{
 				dataOut.flush();
 				
 			} else {
-				// GET or HEAD method
-				if (fileRequested.endsWith("/")) {
-					fileRequested += DEFAULT_FILE;
-				}
-				
+                                if (fileRequested.endsWith("/")) {
+                                       fileRequested += DEFAULT_FILE;
+                            }else if(fileRequested.equals("/puntivendita.xml")){
+                                       System.out.println("File xml richiesto");
+                                       ObjectMapper objMapper = new ObjectMapper();
+                                       PuntiVendita pv = objMapper.readValue(new File(WEB_ROOT + "/puntiVendita.json"), PuntiVendita.class);
+                                       XmlMapper xmlMapper = new XmlMapper();
+                                       xmlMapper.writeValue(new File(WEB_ROOT + "/puntiVendita.xml"),pv);
+                                       File file = new File(WEB_ROOT + "/puntiVendita.xml");
+                            } 
 				File file = new File(WEB_ROOT, fileRequested);
 				int fileLength = (int) file.length();
 				String content = getContentType(fileRequested);
@@ -142,8 +141,7 @@ public class JavaHTTPServer implements Runnable{
 				
 				if (verbose) {
 					System.out.println("File " + fileRequested + " of type " + content + " returned");
-				}
-				
+				}	
 			}
 			
 		} catch (FileNotFoundException fnfe) {
@@ -168,9 +166,7 @@ public class JavaHTTPServer implements Runnable{
 			if (verbose) {
 				System.out.println("Connection closed.\n");
 			}
-		}
-		
-		
+		}	
 	}
 	
 	private byte[] readFileData(File file, int fileLength) throws IOException {
@@ -182,18 +178,19 @@ public class JavaHTTPServer implements Runnable{
 			fileIn.read(fileData);
 		} finally {
 			if (fileIn != null) 
-				fileIn.close();
+                            fileIn.close();
 		}
-		
 		return fileData;
 	}
 	
 	// return supported MIME Types
 	private String getContentType(String fileRequested) {
 		if (fileRequested.endsWith(".htm")  ||  fileRequested.endsWith(".html"))
-			return "text/html";
+                    return "text/html";
+                else if (fileRequested.endsWith(".xml"))
+                    return "text/xml";
 		else
-			return "text/plain";
+                    return "text/plain";
 	}
 	
 	private void fileNotFound(PrintWriter out, OutputStream dataOut, String fileRequested) throws IOException {
