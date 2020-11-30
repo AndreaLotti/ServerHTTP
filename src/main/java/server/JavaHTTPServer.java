@@ -81,7 +81,6 @@ public class JavaHTTPServer implements Runnable{
 			String method = parse.nextToken().toUpperCase(); // we get the HTTP method of the client
 			// we get file requested
 			fileRequested = parse.nextToken().toLowerCase();
-                        if(fileRequested.equals("/puntivendita.xml/")) fileRequested = "/puntivendita.xml";
 			
 			// we support only GET and HEAD methods, we check
 			if (!method.equals("GET")  &&  !method.equals("HEAD")) {
@@ -114,10 +113,10 @@ public class JavaHTTPServer implements Runnable{
                             }else if(fileRequested.equals("/puntivendita.xml")){
                                        System.out.println("File xml richiesto");
                                        ObjectMapper objMapper = new ObjectMapper();
-                                       PuntiVendita pv = objMapper.readValue(new File(WEB_ROOT + "/puntiVendita.json"), PuntiVendita.class);
+                                       PuntiVendita pv = objMapper.readValue(new File(WEB_ROOT + "/puntiVendita.json"), PuntiVendita.class);//deserializzazione
                                        XmlMapper xmlMapper = new XmlMapper();
-                                       xmlMapper.writeValue(new File(WEB_ROOT + "/puntiVendita.xml"),pv);
-                                       File file = new File(WEB_ROOT + "/puntiVendita.xml");
+                                       xmlMapper.writeValue(new File(WEB_ROOT + "/puntiVendita.xml"),pv);//serializzazione
+                                       File file = new File(WEB_ROOT + "/puntiVendita.xml");//scrittura su file
                             } 
 				File file = new File(WEB_ROOT, fileRequested);
 				int fileLength = (int) file.length();
