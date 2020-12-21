@@ -1,1 +1,7 @@
-server\JavaHTTPServer.class
+PuntiVendita/PuntiVenditaXML.class
+SQL/Alunno.class
+SQL/JavaSQL.class
+PuntiVendita/PuntoVendita.class
+server/JavaHTTPServer.class
+SQL/Alunni.class
+PuntiVendita/PuntiVendita.class

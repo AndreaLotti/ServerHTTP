@@ -15,17 +15,17 @@ import SQL.JavaSQL;
 
 // Each Client Connection will be managed in a dedicated Thread
 public class JavaHTTPServer implements Runnable{ 
-	static final File WEB_ROOT = new File("./Files");
+	static final File WEB_ROOT = new File("/home/cabox/workspace/ServerHTTP/Files");
 	static final String DEFAULT_FILE = "index.html";
 	static final String FILE_NOT_FOUND = "404.html";
-        static final String FILE_REDIRECT = "301.html";
-        static final String FILE_XML = "puntivendita.xml";
-        static final String FILE_DB_XML = "db.xml";
-        static final String FILE_DB_JSON = "db.json";
+  static final String FILE_REDIRECT = "301.html";
+  static final String FILE_XML = "puntivendita.xml";
+  static final String FILE_DB_XML = "db.xml";
+  static final String FILE_DB_JSON = "db.json";
 	static final String METHOD_NOT_SUPPORTED = "not_supported.html";
-        private JavaSQL db = new JavaSQL();
+  private JavaSQL db = new JavaSQL();
 	// port to listen connection
-	static final int PORT = 8080;
+	static final int PORT = 3000;
 	
 	// verbose mode
 	static final boolean verbose = true;
@@ -98,7 +98,7 @@ public class JavaHTTPServer implements Runnable{
 					
 				// we send HTTP Headers with data to client
 				out.println("HTTP/1.1 501 Not Implemented");
-				out.println("Server: Java HTTP Server from SSaurel : 1.0");
+				out.println("Server: Java HTTP Server from Lotti Andrea : 1.0");
 				out.println("Date: " + new Date());
 				out.println("Content-type: " + contentMimeType);
 				out.println("Content-length: " + fileLength);
@@ -109,22 +109,22 @@ public class JavaHTTPServer implements Runnable{
 				dataOut.flush();
 				
 			} else {
-                                if (fileRequested.endsWith("/")) {
-                                    fileRequested += DEFAULT_FILE;
-                                    
-                                }else if(fileRequested.equals("/" + FILE_XML)){
-                                    System.out.println("File xml richiesto");
-                                    PuntiVenditaXML.getPuntivendita(WEB_ROOT, FILE_XML);
-                                    
-                                }else if(fileRequested.equals("/" + FILE_DB_XML )){
-                                    System.out.println("File xml richiesto");
-                                    db.getDatabaseXML(WEB_ROOT, FILE_DB_XML);
-                                    
-                                }else if(fileRequested.equals("/" + FILE_DB_JSON)){
-                                    
-                                    System.out.println("File json richiesto");
-                                    db.getDatabaseJSON(WEB_ROOT, FILE_DB_JSON);
-                            } 
+              if (fileRequested.endsWith("/")) {
+                  fileRequested += DEFAULT_FILE;
+
+              }else if(fileRequested.equals("/" + FILE_XML)){
+                  System.out.println("File xml richiesto");
+                  PuntiVenditaXML.getPuntivendita(WEB_ROOT, FILE_XML);
+
+              }else if(fileRequested.equals("/" + FILE_DB_XML )){
+                  System.out.println("File xml richiesto");
+                  db.getDatabaseXML(WEB_ROOT, FILE_DB_XML);
+
+              }else if(fileRequested.equals("/" + FILE_DB_JSON)){
+
+                  System.out.println("File json richiesto");
+                  db.getDatabaseJSON(WEB_ROOT, FILE_DB_JSON);
+          } 
 				File file = new File(WEB_ROOT, fileRequested);
 				int fileLength = (int) file.length();
 				String content = getContentType(fileRequested);

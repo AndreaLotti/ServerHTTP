@@ -27,7 +27,6 @@ public class JavaSQL {
           {
               String nome = resultSet.getString("Nome");
               String cognome = resultSet.getString("Cognome");
-              System.out.println(nome + " " + cognome);
               Alunno a = new Alunno (nome, cognome);
               alunni.addAlunno(a);
           }
