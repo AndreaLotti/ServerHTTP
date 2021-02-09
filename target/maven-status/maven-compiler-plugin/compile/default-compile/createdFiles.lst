@@ -1,7 +1,7 @@
-PuntiVendita/PuntiVenditaXML.class
-SQL/Alunno.class
-SQL/JavaSQL.class
-PuntiVendita/PuntoVendita.class
-server/JavaHTTPServer.class
-SQL/Alunni.class
-PuntiVendita/PuntiVendita.class
+SQL\Alunno.class
+SQL\JavaSQL.class
+PuntiVendita\PuntiVenditaXML.class
+PuntiVendita\PuntiVendita.class
+PuntiVendita\PuntoVendita.class
+server\JavaHTTPServer.class
+SQL\Alunni.class
