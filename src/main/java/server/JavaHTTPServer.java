@@ -15,7 +15,7 @@ import SQL.JavaSQL;
 
 // Each Client Connection will be managed in a dedicated Thread
 public class JavaHTTPServer implements Runnable{ 
-	static final File WEB_ROOT = new File("./Files");
+	static final String WEB_ROOT = "/Files";
 	static final String DEFAULT_FILE = "index.html";
 	static final String FILE_NOT_FOUND = "404.html";
   static final String FILE_REDIRECT = "301.html";
@@ -24,8 +24,12 @@ public class JavaHTTPServer implements Runnable{
   static final String FILE_DB_JSON = "db.json";
 	static final String METHOD_NOT_SUPPORTED = "not_supported.html";
   private JavaSQL db = new JavaSQL();
+  private boolean check =false;
+  private byte[] fileData = null;
+  private int fileLength = 0;
+  private String content = null;
 	// port to listen connection
-	static final int PORT = 3000;
+	static final int PORT = 4000;
 	
 	// verbose mode
 	static final boolean verbose = true;
@@ -90,11 +94,12 @@ public class JavaHTTPServer implements Runnable{
 				}
 				
 				// we return the not supported file to the client
-				File file = new File(WEB_ROOT, METHOD_NOT_SUPPORTED);
-				int fileLength = (int) file.length();
+				fileData = readFileData(WEB_ROOT+METHOD_NOT_SUPPORTED);
+                                fileLength = fileData.length;
+				
 				String contentMimeType = "text/html";
 				//read content to return to client
-				byte[] fileData = readFileData(file, fileLength);
+				
 					
 				// we send HTTP Headers with data to client
 				out.println("HTTP/1.1 501 Not Implemented");
@@ -114,23 +119,40 @@ public class JavaHTTPServer implements Runnable{
 
               }else if(fileRequested.equals("/" + FILE_XML)){
                   System.out.println("File xml richiesto");
-                  PuntiVenditaXML.getPuntivendita(WEB_ROOT, FILE_XML);
+                  PuntiVenditaXML xml= new PuntiVenditaXML();
+                  String s = xml.getPuntivendita(WEB_ROOT, FILE_XML);
+                  fileData = s.getBytes();
+                  fileLength = fileData.length;
+                  check =true;
+                  content = getContentType(fileRequested);
 
               }else if(fileRequested.equals("/" + FILE_DB_XML )){
                   System.out.println("File xml richiesto");
-                  db.getDatabaseXML(WEB_ROOT, FILE_DB_XML);
+                  String s = db.getDatabaseXML(WEB_ROOT, FILE_DB_XML);
+                  fileData = s.getBytes();
+                  fileLength = fileData.length;
+                  check =true;
+                  content = getContentType(fileRequested);
 
               }else if(fileRequested.equals("/" + FILE_DB_JSON)){
 
                   System.out.println("File json richiesto");
-                  db.getDatabaseJSON(WEB_ROOT, FILE_DB_JSON);
+                  String s = db.getDatabaseJSON(WEB_ROOT, FILE_DB_JSON);
+                  fileData = s.getBytes();
+                  fileLength = fileData.length;
+                  check =true;
+                  content = getContentType(fileRequested);
+
+                  
           } 
-				File file = new File(WEB_ROOT, fileRequested);
-				int fileLength = (int) file.length();
-				String content = getContentType(fileRequested);
-				
+				if(check == false){
+                                    fileData = readFileData(WEB_ROOT+fileRequested);
+                                    fileLength = fileData.length;
+                                    content = getContentType(fileRequested);
+                                }
+				check=false;
 				if (method.equals("GET")) { // GET method so we return content
-					byte[] fileData = readFileData(file, fileLength);
+					
 					
 					// send HTTP Headers
 					out.println("HTTP/1.1 200 OK");
@@ -175,16 +197,18 @@ public class JavaHTTPServer implements Runnable{
 		}	
 	}
 	
-	private byte[] readFileData(File file, int fileLength) throws IOException {
-		FileInputStream fileIn = null;
-		byte[] fileData = new byte[fileLength];
-		
+	private byte[] readFileData(String file) throws IOException {
+		InputStream i = null;
+		byte[] fileData;
+                
 		try {
-			fileIn = new FileInputStream(file);
-			fileIn.read(fileData);
+			i = getClass().getResourceAsStream(file);
+                        if(i == null||!file.contains("."))return null;
+                        fileData = new byte[i.available()];
+                        i.read(fileData);
 		} finally {
-			if (fileIn != null) 
-                            fileIn.close();
+			if (i != null) 
+                            i.close();
 		}
 		return fileData;
 	}
@@ -204,10 +228,10 @@ public class JavaHTTPServer implements Runnable{
 	private void fileNotFound(PrintWriter out, OutputStream dataOut, String fileRequested) throws IOException {
 		
                 if(fileRequested.endsWith(".html")){
-                    File file = new File(WEB_ROOT, FILE_NOT_FOUND);
-                    int fileLength = (int) file.length();
+                   String file = (WEB_ROOT +FILE_NOT_FOUND);
                     String content = "text/html";
-                    byte[] fileData = readFileData(file, fileLength);
+                    byte[] fileData = readFileData(file);
+                    int fileLength = (int) fileData.length;
                 
                     out.println("HTTP/1.1 404 File Not Found");
                     out.println("Server: Java HTTP Server from SSaurel : 1.0");
@@ -225,10 +249,10 @@ public class JavaHTTPServer implements Runnable{
                     }
                 }
                 else {
-                    File file = new File(WEB_ROOT, FILE_REDIRECT);
-                    int fileLength = (int) file.length();
+                    String file = (WEB_ROOT + FILE_REDIRECT);
                     String content = "text/html";
-                    byte[] fileData = readFileData(file, fileLength);                   
+                    byte[] fileData = readFileData(file);  
+                    int fileLength = (int) fileData.length;
                     out.println("HTTP/1.1 301 Page Not Found");
                     out.println("Server: Java HTTP Server from SSaurel : 1.0");
                     out.println("Date: " + new Date());

@@ -36,26 +36,29 @@ public class JavaSQL {
       }
     } 
     
-    public void getDatabaseXML(File WEB_ROOT, String FILE_DB_XML){
+    public String getDatabaseXML(String WEB_ROOT, String FILE_DB_XML){
+        String s = null;
         try{
-            xmlMapper.writeValue(new File(WEB_ROOT + "/" + FILE_DB_XML), alunni); //serializzazione in xml
-            File file = new File(WEB_ROOT + "/" + FILE_DB_XML);//scrittura su file
+            s = xmlMapper.writeValueAsString(alunni); //serializzazione in xml
 
         }catch(Exception e)
         {
             e.toString();
         }
+        return s;
     }
     
-    public void getDatabaseJSON(File WEB_ROOT, String FILE_DB_JSON){
+    public String getDatabaseJSON(String WEB_ROOT, String FILE_DB_JSON){
+        String s=null;
         try{
-            objMapper.writeValue(new File(WEB_ROOT + "/" + FILE_DB_JSON), alunni); //serializzazione in json
-            File file = new File(WEB_ROOT + "/" + FILE_DB_JSON);//scrittura su file
+            s = objMapper.writeValueAsString(alunni); //serializzazione in json
+            
             
         }catch(Exception e)
         {
             e.toString();
         }
+        return s;
     }
     
 }

@@ -13,13 +13,16 @@ public class PuntiVenditaXML {
     private static ObjectMapper objMapper = new ObjectMapper();
     private static XmlMapper xmlMapper = new XmlMapper();
     
-    public static void getPuntivendita(File WEB_ROOT, String FILE_XML){
+    public String getPuntivendita(String WEB_ROOT, String FILE_XML){
+        String ser=null;
         try{
-            PuntiVendita pv = objMapper.readValue(new File(WEB_ROOT + "/puntiVendita.json"), PuntiVendita.class);//deserializzazione
-            xmlMapper.writeValue(new File(WEB_ROOT + "/" + FILE_XML),pv);//serializzazione
-            File file = new File(WEB_ROOT + "/" + FILE_XML);//scrittura su file
+            PuntiVendita pv = objMapper.readValue(getClass().getResourceAsStream(WEB_ROOT + "/puntiVendita.json"), PuntiVendita.class);
+            XmlMapper xmlMapper = new XmlMapper();
+             ser = xmlMapper.writeValueAsString(pv);
         }catch(Exception ex){
             ex.toString();
         }
+       return ser; 
     }
+    
 }
